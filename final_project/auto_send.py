@@ -22,7 +22,7 @@ def start():
 def autu_button():
     input_data = request.args.get('input')
     pb.autu_enroll(input_data)
-    return jsonify({'message': f'{input_data}'})
+    return jsonify({'message': f'this point2'})
     # return render_template("screen2.html", items = rows) 
 
 
