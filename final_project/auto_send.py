@@ -21,8 +21,10 @@ def start():
 @app.route("/fetch_data")
 def autu_button():
     input_data = request.args.get('input')
-    pb.autu_enroll(input_data)
-    return jsonify({'message': f'this point2'})
+    # pb.autu_enroll(input_data)
+    temp = pb.autu_enroll(input_data)
+    return jsonify({'message': f'{temp}'})
+    # 안됩니다 ㅠㅠ return render_template("test.html", test_obj = jsonify({'message':temp}))
     # return render_template("screen2.html", items = rows) 
 
 
