@@ -54,7 +54,7 @@ def get_current(selected_option):
         new_list.append(rows[i])
     return new_list
 
-def autu_enroll(input_data):
+def autu_enroll(input_data, input_Qty = 1000):
     con = pymssql.connect(#server="192.168.0.112:1433",
                     #   host='localhost',
                       server = "222.235.141.8:1111",
@@ -85,8 +85,7 @@ def autu_enroll(input_data):
                   charset = "EUC-KR")
     cur = con.cursor()
     sql = ""
-    if (s == 'Y'):   # TB_MaterialOrder에 insert 로직 시행 
-        # 자동발주가능여부가 Y일때
+    if (s == 'Y'):   # TB_MaterialOrder에 insert 로직 시행
         sql += " DECLARE @LD_NOWDATE DATETIME "
         sql += "        ,@LS_NOWDATE VARCHAR(10) "
         sql += "        ,@LI_SEQ     INT "
@@ -106,9 +105,8 @@ def autu_enroll(input_data):
         sql += "  WHERE A.PLANTCODE = '1000' "
         sql += "    AND A.WORKCENTERCODE = 'WO07_ASSY' "
         sql += "   INSERT INTO TB_MaterialOrder (PLANTCODE, PONO,     ITEMCODE,       PODATE,      POQTY, UNITCODE, MAKER,     MAKEDATE,    CUSTCODE, POSEQ,  AORDERSTATUS) "
-        sql += f"                        VALUES ('1000',    @LS_PONO, '{input_data}', @LS_NOWDATE, 1000,  'EA',     @LS_MAKER, @LD_NOWDATE, 'C3001', @LI_SEQ, 'Y') "
+        sql += f"                        VALUES ('1000',    @LS_PONO, '{input_data}', @LS_NOWDATE, {input_Qty},  'EA',     @LS_MAKER, @LD_NOWDATE, 'C3001', @LI_SEQ, 'Y') "
     else:
-        # 자동발주가능여부가 N일때
         sql += " DECLARE @LD_NOWDATE DATETIME  "
         sql += "        ,@LS_NOWDATE VARCHAR(10)  "
         sql += "        ,@LI_ReqSEQ  INT  "
@@ -125,9 +123,9 @@ def autu_enroll(input_data):
         sql += "  WHERE A.PLANTCODE = '1000'  "
         sql += "    AND A.WORKCENTERCODE = 'WO07_ASSY'  "
         sql += " INSERT INTO TB_OrderRequestList (PLANTCODE, ReqSEQ,     ReqDATE,     ITEMCODE, ReqQTY,   UNITCODE, CUSTCODE, ApprSTATUS, MAKER,     MAKEDATE)  "
-        sql += f"                          VALUES('1000'   , @LI_ReqSEQ, @LS_NOWDATE, '{input_data}', 1000,    'EA'    , 'C3001',  'N'       , @LS_MAKER, @LD_NOWDATE)"
+        sql += f"                          VALUES('1000'   , @LI_ReqSEQ, @LS_NOWDATE, '{input_data}', {input_Qty},    'EA'    , 'C3001',  'N'       , @LS_MAKER, @LD_NOWDATE)"
         
     cur.execute(sql)
     con.commit()
     con.close()
-    return s
+    return '발주 등록을 완료하였습니다.'
