@@ -85,7 +85,8 @@ def autu_enroll(input_data):
                   charset = "EUC-KR")
     cur = con.cursor()
     sql = ""
-    if (s == 'Y'):   # TB_MaterialOrder에 insert 로직 시행
+    if (s == 'Y'):   # TB_MaterialOrder에 insert 로직 시행 
+        # 자동발주가능여부가 Y일때
         sql += " DECLARE @LD_NOWDATE DATETIME "
         sql += "        ,@LS_NOWDATE VARCHAR(10) "
         sql += "        ,@LI_SEQ     INT "
@@ -107,6 +108,7 @@ def autu_enroll(input_data):
         sql += "   INSERT INTO TB_MaterialOrder (PLANTCODE, PONO,     ITEMCODE,       PODATE,      POQTY, UNITCODE, MAKER,     MAKEDATE,    CUSTCODE, POSEQ,  AORDERSTATUS) "
         sql += f"                        VALUES ('1000',    @LS_PONO, '{input_data}', @LS_NOWDATE, 1000,  'EA',     @LS_MAKER, @LD_NOWDATE, 'C3001', @LI_SEQ, 'Y') "
     else:
+        # 자동발주가능여부가 N일때
         sql += " DECLARE @LD_NOWDATE DATETIME  "
         sql += "        ,@LS_NOWDATE VARCHAR(10)  "
         sql += "        ,@LI_ReqSEQ  INT  "
