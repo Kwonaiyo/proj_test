@@ -15,7 +15,7 @@ def get_itemcode():
     sql += "  SELECT ITEMCODE "
     sql += "        ,ITEMNAME "
     sql += "    FROM TB_ItemMaster "
-    sql += "   WHERE ITEMTYPE LIKE '%ROH%' "
+    sql += "   WHERE ITEMTYPE LIKE '%'+ 'ROH' + '%' "
     sql += "ORDER BY ITEMNAME, ITEMCODE "
     cur.execute(sql)
     rows = cur.fetchall()
@@ -118,7 +118,7 @@ def autu_enroll(input_data, input_Qty = 1000):
         sql += "   FROM TB_OrderRequestList WITH(NOLOCK)  "
         sql += "  WHERE PLANTCODE = '1000'  "
         sql += "    AND ReqDATE   = @LS_NOWDATE  "
-        sql += " SELECT @LS_MAKER = B.WORKERNAME  "
+        sql += " SELECT @LS_MAKER = B.WORKERID  "
         sql += "   FROM TP_WorkcenterStatus A WITH(NOLOCK) JOIN TB_WorkerList B WITH(NOLOCK)  "
         sql += "                                             ON A.WORKER = B.WORKERID  "
         sql += "  WHERE A.PLANTCODE = '1000'  "
@@ -130,3 +130,28 @@ def autu_enroll(input_data, input_Qty = 1000):
     con.commit()
     con.close()
     return '발주 등록을 완료하였습니다.'
+
+def enroll_check(input_data):
+    try:
+        con = pymssql.connect(#server="192.168.0.112:1433",
+                        #   host='localhost',
+                          server = "222.235.141.8:1111",
+                          database="KDTB03_1JO",
+                          user="KDTB03",
+                          password="333538",
+                          charset = "EUC-KR") # 글자 꺠짐 방지
+        cur=con.cursor()
+        sql = ""
+        sql +="    SELECT SUM(POQTY)AS POQTY"
+        sql +="      FROM TB_MaterialOrder"
+        sql +=f"     WHERE ITEMCODE = '{input_data}'"
+        sql +=f"       AND UNITCODE = 'EA'"
+        sql +="  GROUP BY ITEMCODE"
+        cur.execute(sql)
+        rows = cur.fetchone()
+        a = rows[0]
+        con.close()
+    except:
+        a = 0
+        con.close()
+    return a

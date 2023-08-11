@@ -24,7 +24,15 @@ def autu_button():
     string = pb.autu_enroll(input_data)
     return jsonify({'message': f'{string}'})
 
-@app.route("/fetch_data2")
+# 현재 개수 몇 개 있는지 확인
+@app.route("/fetch_data_check")
+def check_button():
+    input_data = request.args.get('input')
+    string = str(pb.enroll_check(input_data))
+    return jsonify({'message': f'{string}'})
+
+# 발주 버튼 클릭
+@app.route("/fetch_data_enroll2")
 def manual_button():
     input_data = request.args.get('input')
     input_Qty = request.args.get('inputQty')

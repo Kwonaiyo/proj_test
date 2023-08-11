@@ -96,6 +96,7 @@
         <div id="change">Hello</div>
 
         <script>
+            // 조회버튼 클릭 시 이벤트
             function get_itemcode(){
                 let selectElement = document.getElementById("select_value");
                 let selectedOption = selectElement.options[selectElement.selectedIndex];
@@ -103,12 +104,31 @@
 
                 document.getElementById("itemname").value = selectedOptionId
             }
+            // 자동 발주 버튼 클릭 시 이벤트
             document.getElementById('center_auto_button').addEventListener('click', async () => {
-                const inputData = document.getElementById('itemcode').innerText;
-                const response = await fetch(`/fetch_data?input=${inputData}`);
-                const data = await response.json();
-                document.getElementById('change').innerText = data.message;
+                const inputData = document.getElementById('itemcode').innerText; // 아이템 코드 받아옴
+                let inputQty = 1000
+                let response = await fetch(`/fetch_data_check?input=${inputData}`); // 아이템 코드를 보내서 발주신청이 몇 개 되어있는지 받아옴
+                let data = await response.json();
+                if(Number(data.message) > 0){   // 발주 신청이 되어있는게 하나라도 있으면 실행
+                    let result = confirm("현재 " + data.message + "개가 발주신청이 되어 있는데 등록하시겠습니까?");
+                    if (result == true) {
+                        response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                        data = await response.json();
+                        document.getElementById('change').innerText = data.message;
+                    } else {
+                        alert("취소하였습니다.");
+                    }
+                } else {    // 발주 신청이 되어있는게 없으면 실행
+                    response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                    data = await response.json();
+                    document.getElementById('change').innerText = data.message;
+                }
+                
+
             });
+
+            // 수동 발주 버튼 클릭 시 이벤트
             document.getElementById('center_manual_button').addEventListener('click', async () => {
                 const inputData = document.getElementById('itemcode').innerText;
                 let inputQty = document.getElementById('center_input').value;
@@ -116,12 +136,24 @@
                     let inputvalue = 0
                     inputQty = inputvalue.toString()
                 }
-                const response = await fetch(`/fetch_data2?input=${inputData}&inputQty=${inputQty}`);
-                const data = await response.json();
-                document.getElementById('change').innerText = data.message;
+                let response = await fetch(`/fetch_data_check?input=${inputData}`);
+                let data = await response.json();
+                if(Number(data.message) > 0){
+                    let result = confirm("현재 " + data.message + "개가 발주신청이 되어 있는데 등록하시겠습니까?");
+                    if (result == true) {
+                        response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                        data = await response.json();
+                        document.getElementById('change').innerText = data.message;
+                    } else {
+                        alert("취소하였습니다.");
+                    }
+                } else {    // 발주 신청이 되어있는게 없으면 실행
+                    response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                    data = await response.json();
+                    document.getElementById('change').innerText = data.message;
+                }
+
             });
-
-
 
         </script>
     </body>
