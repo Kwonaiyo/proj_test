@@ -21,11 +21,17 @@ def start():
 @app.route("/fetch_data")
 def autu_button():
     input_data = request.args.get('input')
-    # pb.autu_enroll(input_data)
-    temp = pb.autu_enroll(input_data)
-    return jsonify({'message': f'{temp}'})
-    # 안됩니다 ㅠㅠ return render_template("test.html", test_obj = jsonify({'message':temp}))
-    # return render_template("screen2.html", items = rows) 
+    string = pb.autu_enroll(input_data)
+    return jsonify({'message': f'{string}'})
+
+@app.route("/fetch_data2")
+def manual_button():
+    input_data = request.args.get('input')
+    input_Qty = request.args.get('inputQty')
+    if(int(input_Qty) <= 0 or input_Qty == ""):
+        return jsonify({'message':'적어도 한 개 이상은 보냅시다;;'})
+    string = pb.autu_enroll(input_data, input_Qty)
+    return jsonify({'message':f'{string}'})
 
 
 

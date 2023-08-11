@@ -4,6 +4,12 @@
             body{
                 margin: 0;
                 padding: 0;
+                background-image: url("https://image.auction.co.kr/itemimage/16/b0/a9/16b0a9e4f6.jpg");
+                background-repeat:no-repeat;
+                width: 100%;
+                height: 100%;
+                background-size :900px;
+                background-position-x: center;
             }
             .head{
                 text-align: center;
@@ -45,6 +51,9 @@
             .center_input{
                 margin-right: 20px;
             }
+            #change{
+                font-size: 30px;
+            }
         </style>
     </head>
 
@@ -80,10 +89,11 @@
                 </table>
             </div>
             <button id="center_auto_button">자동 발주</button>
-            <input class="center_input" type="text"></input>
-            <button>발주 넣기</button>
+            <input id="center_input" type="text"></input>
+            <button id="center_manual_button">발주 넣기</button>
         </div>
-        <div id="change">hello</div>
+        <br><br>
+        <div id="change">Hello</div>
 
         <script>
             function get_itemcode(){
@@ -93,13 +103,20 @@
 
                 document.getElementById("itemname").value = selectedOptionId
             }
-            // function autu_send_click(){
-            //     let itemcode = document.getElementById("itemcode").innerText
-            //     document.getElementById("change").innerText = itemcode
-            // }
             document.getElementById('center_auto_button').addEventListener('click', async () => {
                 const inputData = document.getElementById('itemcode').innerText;
                 const response = await fetch(`/fetch_data?input=${inputData}`);
+                const data = await response.json();
+                document.getElementById('change').innerText = data.message;
+            });
+            document.getElementById('center_manual_button').addEventListener('click', async () => {
+                const inputData = document.getElementById('itemcode').innerText;
+                let inputQty = document.getElementById('center_input').value;
+                if (inputQty.length == 0){
+                    let inputvalue = 0
+                    inputQty = inputvalue.toString()
+                }
+                const response = await fetch(`/fetch_data2?input=${inputData}&inputQty=${inputQty}`);
                 const data = await response.json();
                 document.getElementById('change').innerText = data.message;
             });

@@ -15,6 +15,7 @@ def get_itemcode():
     sql += "  SELECT ITEMCODE "
     sql += "        ,ITEMNAME "
     sql += "    FROM TB_ItemMaster "
+    sql += "   WHERE ITEMTYPE LIKE '%ROH%' "
     sql += "ORDER BY ITEMNAME, ITEMCODE "
     cur.execute(sql)
     rows = cur.fetchall()
@@ -54,7 +55,7 @@ def get_current(selected_option):
         new_list.append(rows[i])
     return new_list
 
-def autu_enroll(input_data):
+def autu_enroll(input_data, input_Qty = 1000):
     con = pymssql.connect(#server="192.168.0.112:1433",
                     #   host='localhost',
                       server = "222.235.141.8:1111",
@@ -99,13 +100,13 @@ def autu_enroll(input_data):
         sql += "    AND PODATE    = @LS_NOWDATE "
         sql += " SET @LI_SEQ = ISNULL(@LI_SEQ,1) "
         sql += " SET @LS_PONO = 'PO' + CONVERT(VARCHAR,@LD_NOWDATE,112) + RIGHT('00000' + CONVERT(VARCHAR,@LI_SEQ),4) "
-        sql += " SELECT @LS_MAKER = B.WORKERNAME "
+        sql += " SELECT @LS_MAKER = B.WORKERID "
         sql += "   FROM TP_WorkcenterStatus A WITH(NOLOCK) JOIN TB_WorkerList B WITH(NOLOCK) "
         sql += "                                             ON A.WORKER = B.WORKERID "
         sql += "  WHERE A.PLANTCODE = '1000' "
         sql += "    AND A.WORKCENTERCODE = 'WO07_ASSY' "
         sql += "   INSERT INTO TB_MaterialOrder (PLANTCODE, PONO,     ITEMCODE,       PODATE,      POQTY, UNITCODE, MAKER,     MAKEDATE,    CUSTCODE, POSEQ,  AORDERSTATUS) "
-        sql += f"                        VALUES ('1000',    @LS_PONO, '{input_data}', @LS_NOWDATE, 1000,  'EA',     @LS_MAKER, @LD_NOWDATE, 'C3001', @LI_SEQ, 'Y') "
+        sql += f"                        VALUES ('1000',    @LS_PONO, '{input_data}', @LS_NOWDATE, {input_Qty},  'EA',     @LS_MAKER, @LD_NOWDATE, 'C3001', @LI_SEQ, 'Y') "
     else:
         sql += " DECLARE @LD_NOWDATE DATETIME  "
         sql += "        ,@LS_NOWDATE VARCHAR(10)  "
@@ -123,9 +124,9 @@ def autu_enroll(input_data):
         sql += "  WHERE A.PLANTCODE = '1000'  "
         sql += "    AND A.WORKCENTERCODE = 'WO07_ASSY'  "
         sql += " INSERT INTO TB_OrderRequestList (PLANTCODE, ReqSEQ,     ReqDATE,     ITEMCODE, ReqQTY,   UNITCODE, CUSTCODE, ApprSTATUS, MAKER,     MAKEDATE)  "
-        sql += f"                          VALUES('1000'   , @LI_ReqSEQ, @LS_NOWDATE, '{input_data}', 1000,    'EA'    , 'C3001',  'N'       , @LS_MAKER, @LD_NOWDATE)"
+        sql += f"                          VALUES('1000'   , @LI_ReqSEQ, @LS_NOWDATE, '{input_data}', {input_Qty},    'EA'    , 'C3001',  'N'       , @LS_MAKER, @LD_NOWDATE)"
         
     cur.execute(sql)
     con.commit()
     con.close()
-    return s
+    return '발주 등록을 완료하였습니다.'
