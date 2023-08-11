@@ -15,6 +15,7 @@ def get_itemcode():
     sql += "  SELECT ITEMCODE "
     sql += "        ,ITEMNAME "
     sql += "    FROM TB_ItemMaster "
+    sql += "   WHERE ITEMTYPE LIKE '%ROH%' "
     sql += "ORDER BY ITEMNAME, ITEMCODE "
     cur.execute(sql)
     rows = cur.fetchall()
@@ -99,7 +100,7 @@ def autu_enroll(input_data, input_Qty = 1000):
         sql += "    AND PODATE    = @LS_NOWDATE "
         sql += " SET @LI_SEQ = ISNULL(@LI_SEQ,1) "
         sql += " SET @LS_PONO = 'PO' + CONVERT(VARCHAR,@LD_NOWDATE,112) + RIGHT('00000' + CONVERT(VARCHAR,@LI_SEQ),4) "
-        sql += " SELECT @LS_MAKER = B.WORKERNAME "
+        sql += " SELECT @LS_MAKER = B.WORKERID "
         sql += "   FROM TP_WorkcenterStatus A WITH(NOLOCK) JOIN TB_WorkerList B WITH(NOLOCK) "
         sql += "                                             ON A.WORKER = B.WORKERID "
         sql += "  WHERE A.PLANTCODE = '1000' "
