@@ -8,6 +8,7 @@ app = Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
 def start():
     rows = pb.get_itemcode()  # 콤보박스에 컬럼들을 채움
+    whcode_rows = pb.get_whcode()
     if request.method == 'POST': # html에서 조회 버튼을 클릭했을 때 
         selected_option = request.form.get('selected_option') # 선택된 option의 value를 가져옴
         current = pb.get_current(selected_option)
@@ -24,8 +25,8 @@ def start():
             value4 = int(value4)
         except:
             pass
-        return render_template("auto_scale.html", items = rows, itemcode1=value1,itemcode2=value2,itemcode3=value3,itemcode4=value4)
-    return render_template("auto_scale.html", items = rows) 
+        return render_template("auto_scale.html", whcode = whcode_rows, items = rows, itemcode1=value1,itemcode2=value2,itemcode3=value3,itemcode4=value4)
+    return render_template("auto_scale.html", whcode = whcode_rows, items = rows) 
 
 # 현재 개수 몇 개 있는지 확인
 @app.route("/fetch_data_check")

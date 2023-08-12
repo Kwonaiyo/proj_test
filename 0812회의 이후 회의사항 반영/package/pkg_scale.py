@@ -27,6 +27,24 @@ def get_itemcode():
     # new_list = [item[0] for item in rows]
     return new_list
 
+def get_whcode():
+    whcode_rows = []
+    con = pymssql.connect(server = "222.235.141.8:1111",
+                          database = "KDTB03_1JO",
+                          user = "KDTB03",
+                          password = "333538",
+                          charset = "EUC-KR")
+    cur = con.cursor()
+    sql = ""
+    sql += " SELECT MINORCODE "
+    sql += "   FROM TB_Standard WITH(NOLOCK) "
+    sql += "  WHERE MAJORCODE = 'WHCODE' "
+    sql += "    AND MINORCODE <> '$' "
+    cur.execute(sql)
+    whcode_rows = cur.fetchall()
+    con.close
+    return whcode_rows
+    
 # 테이블 표에 나타날 데이터 가져오기
 def get_current(selected_option):
     rows = []

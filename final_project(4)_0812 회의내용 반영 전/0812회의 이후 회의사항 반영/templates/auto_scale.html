@@ -1,0 +1,181 @@
+<html>
+    <head>
+        <style>
+            body{
+                margin: 0;
+                padding: 0;
+                background-image: url("https://image.auction.co.kr/itemimage/16/b0/a9/16b0a9e4f6.jpg");
+                background-repeat:no-repeat;
+                width: 100%;
+                height: 100%;
+                background-size :900px;
+                background-position-x: center;
+            }
+            .head{
+                text-align: center;
+                width: 100%;
+                padding: 40px;
+                margin-top: 40px;
+                border: 1px solid black;
+                background-color: azure;
+            }
+            #itemname{
+                width: 300px;
+                text-align: center;
+            }
+            table {
+                width: 1100px;
+                border: 1px solid #444444;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #444444;
+                width: 25%;
+            }
+            td{
+                text-align: center;
+            }
+            th{
+                background-color: #d8cbcb;
+            }
+            .center{
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 30px;
+            }
+            .center_grid{
+                width: 100%;
+            }
+            .right_side{
+                width: 100%;
+                text-align: center;
+            }
+            #center_auto_button{
+                width: 100px;
+                height: 50px;
+            }
+            #center_input{
+                margin-top: 30px;
+                height: 30px;
+                text-align: right;
+            }
+            #change{
+                font-size: 30px;
+            }
+            #center_manual_button{
+                width: 100px;
+                height: 50px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="head">
+            <form action="/" method="post">
+                <span>품목코드: </span>
+                <select name="selected_option" id="select_value" onchange= "get_itemcode()"> <!-- style="width: 302px;"> -->
+                    <option value="none">---선택---</option>
+                    {% for i in range(0, items|length, 2) %}
+                    <option id="{{ items[i+1] }}" value="{{items[i]}}">{{items[i]}}</option> <!--왼쪽 itemcode 오른쪽 itemname-->
+                    {% endfor %}
+                </select>
+                <span>품목이름: </span>
+                <input id="itemname" type="text" disabled></input>
+                <button type="submit">조회</button>
+            </form>
+
+        </div>
+        <div class= "center">
+            <div class="center_grid">
+                <table>
+                    <th>품목코드</th>
+                    <th>현재재고</th>
+                    <th>안전재고</th>
+                    <th>적정재고</th>
+                    <tr>
+                        <td id = itemcode>{{itemcode1}}</td>
+                        <td>{{itemcode2}}</td>
+                        <td>{{itemcode3}}</td>
+                        <td>{{itemcode4}}</td>
+                    </tr>
+                </table>
+                <div id="change">Hello</div>
+            </div>
+            <div class="right_side">
+                <div>
+                    <button id="center_auto_button">자동 발주</button>
+                </div>
+                <div>
+                    <input id="center_input" type="text" placeholder="발주 수량을 입력해주세요"></input>
+                    <button id="center_manual_button">발주 넣기</button>
+                </div>
+            </div>
+        </div>
+        <br><br>
+
+
+        <script>
+            // 콤보박스 선택시 이벤트, itemcode를 클릭하면 itemname 등장
+            function get_itemcode(){
+                let selectElement = document.getElementById("select_value");
+                let selectedOption = selectElement.options[selectElement.selectedIndex]; // select - option 인덱스 추출
+                let selectedOptionId = selectedOption.getAttribute("id"); // 인덱스의 id를 추출
+
+                document.getElementById("itemname").value = selectedOptionId // 위에서 가져온 id의 value를 표 
+            }
+            // 자동 발주 버튼 클릭 시 이벤트
+            document.getElementById('center_auto_button').addEventListener('click', async () => {
+                const inputData = document.getElementById('itemcode').innerText; // 아이템 코드 받아옴
+                let inputQty = 1000
+                let response = await fetch(`/fetch_data_check?input=${inputData}`); // 아이템 코드를 보내서 발주신청이 몇 개 되어있는지 받아옴
+                let data = await response.json();
+                if(Number(data.message1) > 0 || (Number(data.message2) > 0 )){   // 발주 신청이 되어있는게 하나라도 있으면 실행
+                    let result = confirm("발주신청: " + data.message1 + "개\n발주승인대기: " + data.message2 +"개\n발주 등록 하시겠습니까?");
+                    if (result == true) {
+                        response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                        data = await response.json();
+                        document.getElementById('change').innerText = data.message;
+                    } else {
+                        document.getElementById('change').innerText = "발주 등록 취소하였습니다.";
+                    }
+                } else {    // 발주 신청이 되어있는게 없으면 실행
+                    response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                    data = await response.json();
+                    document.getElementById('change').innerText = data.message;
+                }
+                setTimeout(() => document.getElementById('change').innerText = "Hello.", 3000);
+
+            });
+
+            // 수동 발주 버튼 클릭 시 이벤트
+            document.getElementById('center_manual_button').addEventListener('click', async () => {
+                const inputData = document.getElementById('itemcode').innerText;
+                let inputQty = document.getElementById('center_input').value;
+                if (inputQty.length == 0){
+                    let inputvalue = 0
+                    inputQty = inputvalue.toString()
+                }
+                let response = await fetch(`/fetch_data_check?input=${inputData}`); // 아이템 코드를 보내서 발주신청이 몇 개 되어있는지 받아옴
+                let data = await response.json();
+                if(Number(data.message1) > 0 || (Number(data.message2) > 0 )){   // 발주 신청이 되어있는게 하나라도 있으면 실행
+                    let result = confirm("발주신청: " + data.message1 + "개\n발주승인대기: " + data.message2 +"개\n발주 등록 하시겠습니까?");
+                    if (result == true) {
+                        response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                        data = await response.json();
+                        document.getElementById('change').innerText = data.message;
+                    } else {
+                        document.getElementById('change').innerText = "발주 등록 취소하였습니다.";
+                    }
+                } else {    // 발주 신청이 되어있는게 없으면 실행
+                    response = await fetch(`/fetch_data_enroll2?input=${inputData}&inputQty=${inputQty}`);
+                    data = await response.json();
+                    document.getElementById('change').innerText = data.message;
+                    setTimeout(() => document.getElementById('change').innerText = "Hello.", 3000);
+                }
+                setTimeout(() => document.getElementById('change').innerText = "Hello.", 3000);
+            });
+
+        </script>
+    </body>
+</html>
